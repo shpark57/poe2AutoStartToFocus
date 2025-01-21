@@ -3,6 +3,9 @@ import subprocess
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from pywinauto import Application
+import sys
+import shutil
+import atexit
 
 # 1. Selenium으로 웹 페이지 접속 및 kgPoe.launch('poe2') 실행
 def launch_game():
@@ -70,6 +73,19 @@ def focus_game_window():
             print("게임 창을 찾을 수 없습니다.")
     except Exception as e:
         print(f"게임 창을 찾는 데 실패했습니다: {e}")
+
+# 4. 프로그램 종료 시 임시 디렉토리 정리
+def cleanup_temp_directory():
+    if hasattr(sys, '_MEIPASS'):
+        try:
+            temp_dir = sys._MEIPASS
+            print(f"임시 디렉토리 삭제: {temp_dir}")
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        except Exception as e:
+            print(f"임시 디렉토리 삭제 실패: {e}")
+
+# atexit 모듈로 종료 시점에 임시 디렉토리 삭제 설정
+atexit.register(cleanup_temp_directory)
 
 # 실행 순서
 def main():
