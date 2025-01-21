@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['main.py'],
+    ['poe2.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='main',
+    name='poe2',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
