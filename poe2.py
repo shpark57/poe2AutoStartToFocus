@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from pywinauto import Application
 import sys
+import pygetwindow as gw
 import shutil
 import atexit
 
@@ -28,7 +29,7 @@ def launch_game():
     wait_for_game()
 
     # 게임 창에 포커스 이동 및 클릭
-    focus_and_click_game_window()
+    focus_game_window()
 
     # Selenium 드라이버 종료
     driver.quit()
@@ -46,42 +47,24 @@ def wait_for_game():
             print(f"프로세스 확인 중 오류 발생: {e}")
         time.sleep(3)
 
-# 3. 두 번째 'Path of Exile 2' 게임 창에 포커스 이동 및 클릭
-def focus_and_click_game_window():
+# 3. 두 번째 'Path of Exile 2' 게임 창에 포커스 이동
+def focus_game_window():
     try:
-        # pywinauto로 실행된 게임 창에 연결
         app = Application(backend="uia").connect(path="PathOfExile_KG.exe")
-
+        time.sleep(5)  # 첫 번째 창이 나타나기까지 기다림
+        # pywinauto로 실행된 게임 창에 연결
         # 게임 창이 올바르게 로드될 때까지 대기
         print("게임 창 로딩 중...")
-        time.sleep(5)  # 첫 번째 창이 나타나기까지 기다림
-
-        # 게임 창이 두 번째로 나타날 때까지 기다리기
-        windows = app.windows()
-        game_window = None
-
         # 첫 번째 창이 사라지고, 두 번째 'Path of Exile 2' 창을 찾을 때까지 대기
         for _ in range(10):  # 최대 10번 반복하여 창을 확인
-            windows = app.windows()  # 현재 열린 모든 창 확인
-            for win in windows:
-                print(f"창 제목: {win.window_text()}")  # 창 제목 확인
-                if "Path of Exile 2" in win.window_text():  # 두 번째 게임 창 찾기
-                    game_window = win
-                    break
-            if game_window:
+            windows = gw.getWindowsWithTitle("Path of Exile 2")  # 제목에 특정 문자열이 포함된 창만 가져옴
+            if windows:  # 창이 존재하면
+                game_window = windows[0]  # 첫 번째 창 선택
                 break
             time.sleep(1)  # 1초 간격으로 다시 시도
 
-        if game_window:
-            # 게임 창에 포커스를 맞추고 클릭
-            game_window.set_focus()  # 게임 창에 포커스 이동
-            print("게임 창에 포커스를 성공적으로 이동했습니다.")
+        game_window.activate()  # 게임 창 활성화
 
-            # 클릭 이벤트 추가
-            game_window.click_input(double=True)  # 더블 클릭 이벤트 (필요에 따라 single 클릭으로 변경 가능)
-            print("게임 창을 클릭했습니다.")
-        else:
-            print("두 번째 게임 창을 찾을 수 없습니다.")
     except Exception as e:
         print(f"게임 창을 찾는 데 실패했습니다: {e}")
 
